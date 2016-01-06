@@ -68,6 +68,6 @@
 
     #Make a vnc desktop link to start it up
   - name: Copy files to deskop
-    copy: src="files/Desktop/IGV.desktop" dest="/mnt/gvl/home/researcher/Desktop/IGV.desktop" owner="researcher" mode="ug+rwx"
+    copy: src="files/Desktop/IGV.desktop" dest="/mnt/galaxy/home/researcher/Desktop/IGV.desktop" owner="researcher" mode="ug+rwx"
     sudo: yes
     sudo_user: root
