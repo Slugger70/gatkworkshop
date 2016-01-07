@@ -1,5 +1,5 @@
 [my_hosts]
-115.146.95.166
+115.146.86.237
 
 [my_hosts:vars]
 ansible_ssh_user=ubuntu
