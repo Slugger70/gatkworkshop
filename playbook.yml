@@ -71,3 +71,14 @@
     copy: src="files/Desktop/IGV.desktop" dest="/mnt/galaxy/home/researcher/Desktop/IGV.desktop" owner="researcher" mode="ug+rwx"
     sudo: yes
     sudo_user: root
+
+  #Alter the VNC geometry to suit higher res apps.
+  - name: Change the vnc resolution.
+    command: sed "s/-geometry 1024x768/-geometry 1440x900/" /etc/xinetd.d/vnc > /etc/xinetd.d/1.txt
+    sudo: yes
+    sudo_user: root
+
+  - name: Overwrite old vnc setup
+    command: mv /etc/xinetd.d/1.txt /etc/xinetd.d/vnc
+    sudo: yes
+    sudo_user: root
