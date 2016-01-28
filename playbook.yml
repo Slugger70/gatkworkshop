@@ -36,6 +36,23 @@
 
   #The environment variable for GATK is created during user login the profile.sh file we copied earlier.
 
+# Download the workshop data from the object store and unzip it into the researchers home directory
+  # First create a directory in the researchers home dir called workshop_data
+  - name: Create a workshop_data dir
+    file: dest="/mnt/galaxy/home/researcher/workshop_data" state=directory owner=researcher
+    sudo: yes
+    sudo_user: ubuntu
+
+  #Now download the workshop data
+  - name: Download the workshop data
+    get_url: url="https://swift.rc.nectar.org.au:8888/v1/AUTH_377/public/workshop_AUS16.zip" dest=/mnt/transient_nfs/workshop_AUS16.zip
+    sudo: yes
+    sudo_user: ubuntu
+
+  #Unzip the workshop_data into the directory
+  - name: Unzip the workshop data
+    unarchive: src="/mnt/transient_nfs/workshop_AUS16.zip" dest="/mnt/galaxy/home/researcher/workshop_data" copy=no
+
   #Now we need to install some R libraries. Using a script from: http://adamj.eu/tech/2014/07/19/installing-and-removing-r-packages-with-ansible/
 
   - name: Add some R packages.
@@ -71,6 +88,28 @@
     copy: src="files/Desktop/IGV.desktop" dest="/mnt/galaxy/home/researcher/Desktop/IGV.desktop" owner="researcher" mode="ug+rwx"
     sudo: yes
     sudo_user: root
+
+# Now do the cromwell bit..
+#First get and untar java8.
+  - name: Download the jre version 1.8 from the object store.
+    get_url: url="https://swift.rc.nectar.org.au:8888/v1/AUTH_377/public/jre-8u71-linux-x64.gz" dest="/mnt/gvl/apps"
+    sudo: yes
+    sudo_user: ubuntu
+
+  - name: Untar the jre
+    unarchive: src="/mnt/gvl/apps/jre-8u71-linux-x64.gz" dest="/mnt/gvl/apps" copy=no
+
+#Create a dir for cromwell and download it there.
+  - name: Create cromwell dir
+    file: dest="{{ app_dir }}/cromwell" state=directory owner=ubuntu
+    sudo: yes
+    sudo_user: ubuntu
+
+  - name: Download cromwell
+    get_url: src="https://swift.rc.nectar.org.au:8888/v1/AUTH_377/public/cromwell-0.16.jar" dest="{{ app_dir }}/cromwell/cromwell-0.16.jar"
+    sudo: yes
+    sudo_user: ubuntu
+    
 
   #Alter the VNC geometry to suit higher res apps.
   - name: Change the vnc resolution.
