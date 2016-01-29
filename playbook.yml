@@ -39,19 +39,26 @@
 # Download the workshop data from the object store and unzip it into the researchers home directory
   # First create a directory in the researchers home dir called workshop_data
   - name: Create a workshop_data dir
-    file: dest="/mnt/galaxy/home/researcher/workshop_data" state=directory owner=researcher
+    file: dest="/mnt/galaxy/home/researcher/workshop_data" state=directory owner=researcher mode=0775
     sudo: yes
-    sudo_user: ubuntu
+    sudo_user: root
 
   #Now download the workshop data
   - name: Download the workshop data
     get_url: url="https://swift.rc.nectar.org.au:8888/v1/AUTH_377/public/workshop_AUS16.zip" dest=/mnt/transient_nfs/workshop_AUS16.zip
     sudo: yes
-    sudo_user: ubuntu
+    sudo_user: root
 
   #Unzip the workshop_data into the directory
   - name: Unzip the workshop data
-    unarchive: src="/mnt/transient_nfs/workshop_AUS16.zip" dest="/mnt/galaxy/home/researcher/workshop_data" copy=no
+    unarchive: src="/mnt/transient_nfs/workshop_AUS16.zip" dest="/mnt/galaxy/home/researcher/workshop_data/" copy=no
+    sudo: yes
+    sudo_user: root
+
+  - name: Chown the workshop data to researcher:researcher
+    command: "sudo chown -R researcher:researcher /mnt/galaxy/home/researcher/workshop_data"
+    sudo: yes
+    sudo_user: ubuntu
 
   #Now we need to install some R libraries. Using a script from: http://adamj.eu/tech/2014/07/19/installing-and-removing-r-packages-with-ansible/
 
@@ -99,6 +106,11 @@
   - name: Untar the jre
     unarchive: src="/mnt/gvl/apps/jre-8u71-linux-x64.gz" dest="/mnt/gvl/apps" copy=no
 
+  - name: Create a link to java vesion 8 in the /usr/bin dir
+    command: sudo ln -s {{ app_dir }}/jre1.8.0_71/bin/java /usr/bin/java8
+    sudo: yes
+    sudo_user: ubuntu
+
 #Create a dir for cromwell and download it there.
   - name: Create cromwell dir
     file: dest="{{ app_dir }}/cromwell" state=directory owner=ubuntu
@@ -106,10 +118,10 @@
     sudo_user: ubuntu
 
   - name: Download cromwell
-    get_url: src="https://swift.rc.nectar.org.au:8888/v1/AUTH_377/public/cromwell-0.16.jar" dest="{{ app_dir }}/cromwell/cromwell-0.16.jar"
+    get_url: url="https://swift.rc.nectar.org.au:8888/v1/AUTH_377/public/cromwell-0.16.jar" dest="{{ app_dir }}/cromwell/cromwell-0.16.jar"
     sudo: yes
     sudo_user: ubuntu
-    
+
 
   #Alter the VNC geometry to suit higher res apps.
   - name: Change the vnc resolution.
